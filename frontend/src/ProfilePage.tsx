@@ -1,18 +1,24 @@
 import { useState, type SubmitEvent } from 'react';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const apiUrl = import.meta.env.VITE_BACKEND_API_URL;
 
 const ProfilePage = () => {
   const [displayName, setDisplayName] = useState('');
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const { getAccessTokenSilently } = useAuth0();
 
   const save = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus('saving');
     try {
+      const accessToken = await getAccessTokenSilently();
       const res = await fetch(`${apiUrl}/profile/displayname`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`
+        },
         body: JSON.stringify({ displayName }),
       });
       setStatus(res.ok ? 'saved' : 'error');

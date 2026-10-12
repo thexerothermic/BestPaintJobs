@@ -4,9 +4,9 @@ using backend.profile.DTOs;
 
 namespace backend.profile.controllers
 {
-    [AllowAnonymous]
-    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
+    [Route("api/[controller]")]
     public class ProfileController : ControllerBase
     {
         [HttpPost("DisplayName")]

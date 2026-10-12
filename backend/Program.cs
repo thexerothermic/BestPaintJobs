@@ -16,8 +16,19 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddAuthentication("Bearer")
+       .AddJwtBearer("Bearer", options =>
+       {
+           options.Authority = builder.Configuration["Auth0:Domain"];
+           options.Audience = builder.Configuration["Auth0:Audience"];
+           options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+           {
+               NameClaimType = System.Security.Claims.ClaimTypes.NameIdentifier
+           };
+       });
+
 builder.Services.AddAuthorization();
+builder.Services.AddControllers();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -33,6 +44,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCors();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
