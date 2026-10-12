@@ -33,7 +33,7 @@ function App() {
   const home = (
     <div className="main-card-wrapper">
       <h1 className="main-title">{isAuthenticated ? "The latest hot paint jobs" : "Welcome to Best Paint Jobs"}</h1>
-      <p className="main-subtitle">The best place to find, share, and enjoy custom vehicle paint jobs.</p>
+      <p className="main-subtitle">{isAuthenticated ? "We think you might like these." : "The best place to find, share, and enjoy custom vehicle paint jobs."}</p>
 
       {isAuthenticated ? (
         <div className="logged-in-section">

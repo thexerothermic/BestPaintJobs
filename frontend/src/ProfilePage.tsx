@@ -10,7 +10,7 @@ const ProfilePage = () => {
     e.preventDefault();
     setStatus('saving');
     try {
-      const res = await fetch(`${apiUrl}/profile`, {
+      const res = await fetch(`${apiUrl}/profile/displayname`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ displayName }),
