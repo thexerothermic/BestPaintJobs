@@ -63,6 +63,13 @@ Follow these step-by-step instructions to run the application locally:
    *(To stop or start the database later, use `docker stop sqlserver` or `docker start sqlserver`).*
 
 2. **Run Database Migrations:**
+   Ensure Entity Framework Core tools are installed on your machine.
+   If they are not use this command to install them:
+   '''bash
+   dotnet tool install --global dotnet-ef
+   ```
+   After installing the tools, the cli will supply you a command to add the tools to your path.
+   Use that command to add the tools to your path.
    Navigate to your backend project directory and apply the Entity Framework Core migrations to create your database tables:
    ```bash
    dotnet ef database update
