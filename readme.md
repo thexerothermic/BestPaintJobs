@@ -51,7 +51,7 @@ Ensure you have the following installed on your local machine before setting up 
    ```
    *Note: Ensure your Auth0 Dashboard application is authorized to access the API (`https://api.bestpaintjobs.com`).*
 
-### Executing Program
+### Running locally
 
 Follow these step-by-step instructions to run the application locally:
 

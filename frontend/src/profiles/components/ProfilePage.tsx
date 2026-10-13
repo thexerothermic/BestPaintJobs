@@ -32,7 +32,7 @@ const ProfilePage = () => {
     fetchProfile();
   }, [getAccessTokenSilently]);
 
-  const save = async (e: SubmitEvent<HTMLFormElement>) => {
+  const saveDisplayName = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus('saving');
     try {
@@ -52,7 +52,7 @@ const ProfilePage = () => {
     <div className="main-card-wrapper profile-page">
       <h1 className="main-title">Profile</h1>
       {loadingProfile && <p>Loading profile...</p>}
-      {!loadingProfile && <form className="profile-form" onSubmit={save}>
+      {!loadingProfile && <form className="profile-form" onSubmit={saveDisplayName}>
         <label htmlFor="displayName">Display Name</label>
         <input
           id="displayName"
