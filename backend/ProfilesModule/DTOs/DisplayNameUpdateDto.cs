@@ -1,5 +1,5 @@
 
-namespace backend.profile.DTOs;
+namespace backend.ProfilesModule.DTOs;
 
 public class DisplayNameUpdateDto
 {

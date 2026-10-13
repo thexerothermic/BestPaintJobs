@@ -1,6 +1,5 @@
-using System;
 
-namespace backend.Profile.Models;
+namespace backend.ProfilesModule.Models;
 
 public class Profile
 {

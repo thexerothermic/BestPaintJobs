@@ -1,3 +1,5 @@
+using backend.Data;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 var origins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
@@ -27,8 +29,14 @@ builder.Services.AddAuthentication("Bearer")
            };
        });
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<backend.Authentication.AuthenticationService>();
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

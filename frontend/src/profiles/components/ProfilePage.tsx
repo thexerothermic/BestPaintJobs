@@ -1,7 +1,6 @@
 import { useState, type SubmitEvent } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-
-const apiUrl = import.meta.env.VITE_BACKEND_API_URL;
+import { updateDisplayName } from '../services/profile-service';
 
 const ProfilePage = () => {
   const [displayName, setDisplayName] = useState('');
@@ -13,14 +12,11 @@ const ProfilePage = () => {
     setStatus('saving');
     try {
       const accessToken = await getAccessTokenSilently();
-      const res = await fetch(`${apiUrl}/profile/displayname`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify({ displayName }),
-      });
+      if (!accessToken) {
+        setStatus('error');
+        return;
+      }
+      const res = await updateDisplayName({ displayName }, accessToken);
       setStatus(res.ok ? 'saved' : 'error');
     } catch {
       setStatus('error');

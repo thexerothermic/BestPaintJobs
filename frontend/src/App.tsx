@@ -2,8 +2,9 @@ import { useAuth0 } from '@auth0/auth0-react';
 import LoginButton from './LoginButton';
 import Carousel from './Carousel';
 import NavBar from './NavBar';
-import ProfilePage from './ProfilePage';
+import ProfilePage from './profiles/components/ProfilePage';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { ProfileSyncManager } from './profiles/components/ProfileSyncManager';
 
 function App() {
   const { isAuthenticated, isLoading, error } = useAuth0();
@@ -32,6 +33,8 @@ function App() {
 
   const home = (
     <div className="main-card-wrapper">
+      {/* Confirm user has a profile synced */}
+      <ProfileSyncManager />
       <h1 className="main-title">{isAuthenticated ? "The latest hot paint jobs" : "Welcome to Best Paint Jobs"}</h1>
       <p className="main-subtitle">{isAuthenticated ? "We think you might like these." : "The best place to find, share, and enjoy custom vehicle paint jobs."}</p>
 
