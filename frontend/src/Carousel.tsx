@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react';
 import PaintJobCard, { type PaintJobCardProps } from './PaintJobCard';
 
-const placeholder = (a: string, b: string) =>
-  `data:image/svg+xml,${encodeURIComponent(
-    `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='450'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${a}'/><stop offset='1' stop-color='${b}'/></linearGradient></defs><rect width='800' height='450' fill='url(#g)'/></svg>`
-  )}`;
-
-// Placeholder data until real paint jobs are available.
+// Placeholders. Need to fetch a few examples not associated with any specific user.
 const slides: PaintJobCardProps[] = [
-  { imageUrl: placeholder('#f6d365', '#fda085'), blurb: 'Placeholder blurb: a candy orange custom paint job.', isEdit: false },
-  { imageUrl: placeholder('#4facfe', '#00f2fe'), blurb: 'Placeholder blurb: an electric blue custom paint job.', isEdit: false },
-  { imageUrl: placeholder('#a18cd1', '#fbc2eb'), blurb: 'Placeholder blurb: a pearl purple custom paint job.', isEdit: false },
+  { imageUrl: "https://bestpaintjobs-elijah-dev-bucket.s3.us-east-2.amazonaws.com/ryan-waldman-JEJlsw73cuI-unsplash.jpg", blurb: 'Photo by Ryan Waldman on Unsplash', isEdit: false },
+  { imageUrl: 'https://bestpaintjobs-elijah-dev-bucket.s3.us-east-2.amazonaws.com/chandler-cruttenden-l1hGIrEAsj0-unsplash.jpg', blurb: 'Photo by Chandler Cruttenden on Unsplash', isEdit: false },
+  { imageUrl: 'https://bestpaintjobs-elijah-dev-bucket.s3.us-east-2.amazonaws.com/martin-fenton-B-T5NyeApOU-unsplash.jpg', blurb: 'Photo by martin fenton on Unsplash', isEdit: false },
 ];
 
 const Carousel = () => {
