@@ -17,6 +17,30 @@ public class PaintJobCardService(AppDbContext context)
             .ToListAsync();
     }
 
+    public async Task<PaintJobCardFeedPageDto> GetFeedPageAsync(int? beforeId, int pageSize)
+    {
+        var query = _context.PaintJobCards.AsNoTracking().Where(c => c.ImageUrl != "");
+        if (beforeId.HasValue)
+        {
+            query = query.Where(c => c.Id < beforeId.Value);
+        }
+
+        var rows = await query
+            .OrderByDescending(c => c.Id)
+            .Take(pageSize + 1)
+            .Select(c => new PaintJobCardFeedItemDto { Id = c.Id, ImageUrl = c.ImageUrl, Blurb = c.Blurb })
+            .ToListAsync();
+
+        var hasMore = rows.Count > pageSize;
+        var items = rows.Take(pageSize).ToList();
+        return new PaintJobCardFeedPageDto
+        {
+            Items = items,
+            HasMore = hasMore,
+            NextBeforeId = hasMore ? items[^1].Id : null
+        };
+    }
+
     public async Task<PaintJobCard?> CreateAsync(string userId)
     {
         var profile = await _context.Profiles.SingleOrDefaultAsync(p => p.UserId == userId);

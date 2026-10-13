@@ -11,6 +11,8 @@ namespace backend.PaintJobCardModule.Controllers
     [Route("api/[controller]")]
     public class PaintJobCardController(PaintJobCardService paintJobCardService, AuthenticationService authenticationService) : ControllerBase
     {
+        private const int DefaultFeedPageSize = 10;
+        private const int MaxFeedPageSize = 50;
         private readonly PaintJobCardService _paintJobCardService = paintJobCardService;
         private readonly AuthenticationService _authenticationService = authenticationService;
 
@@ -19,6 +21,13 @@ namespace backend.PaintJobCardModule.Controllers
         {
             var cards = await _paintJobCardService.GetForUserAsync(_authenticationService.GetUserId());
             return Ok(cards.Select(c => new { c.Id, c.ImageUrl, c.Blurb }));
+        }
+
+        [HttpGet("feed")]
+        public async Task<IActionResult> GetFeed([FromQuery] int? beforeId, [FromQuery] int pageSize = DefaultFeedPageSize)
+        {
+            pageSize = Math.Clamp(pageSize, 1, MaxFeedPageSize);
+            return Ok(await _paintJobCardService.GetFeedPageAsync(beforeId, pageSize));
         }
 
         [HttpPost]

@@ -1,6 +1,7 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import LoginButton from './LoginButton';
 import Carousel from './Carousel';
+import FeedCarousel from './paint-job-cards/components/FeedCarousel';
 import NavBar from './NavBar';
 import ProfilePage from './profiles/components/ProfilePage';
 import { Navigate, Route, Routes } from 'react-router-dom';
@@ -40,7 +41,7 @@ function App() {
 
       {isAuthenticated ? (
         <div className="logged-in-section">
-          <Carousel />
+          <FeedCarousel />
         </div>
       ) : (
         <>
