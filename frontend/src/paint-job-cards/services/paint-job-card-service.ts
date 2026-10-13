@@ -9,6 +9,20 @@ export async function getMyPaintJobCards(token: string): Promise<Response> {
   });
 }
 
+let myCardsInflight: Promise<PaintJobCardUpdateDto[] | null> | null = null;
+
+// Shares one request between concurrent callers (e.g. React StrictMode's double effect run).
+export function loadMyPaintJobCards(token: string): Promise<PaintJobCardUpdateDto[] | null> {
+  if (myCardsInflight) return myCardsInflight;
+  const request = getMyPaintJobCards(token)
+    .then((res) => (res.ok ? (res.json() as Promise<PaintJobCardUpdateDto[]>) : null))
+    .finally(() => {
+      myCardsInflight = null;
+    });
+  myCardsInflight = request;
+  return request;
+}
+
 export async function createPaintJobCard(token: string): Promise<Response> {
   return fetch(`${API_BASE_URL}/paintjobcard`, {
     method: 'POST',

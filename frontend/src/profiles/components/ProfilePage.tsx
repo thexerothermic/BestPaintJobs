@@ -11,7 +11,7 @@ import PaintJobCard from '../../paint-job-cards/components/PaintJobCard';
 import type { PaintJobCardUpdateDto } from '../../paint-job-cards/dtos/PaintJobCardUpdateDto';
 import {
   createPaintJobCard,
-  getMyPaintJobCards,
+  loadMyPaintJobCards,
   updatePaintJobCard,
 } from '../../paint-job-cards/services/paint-job-card-service';
 
@@ -37,12 +37,9 @@ const ProfilePage = () => {
         if (isMounted && profileData?.displayName) {
           setDisplayName(profileData.displayName);
         }
-        const cardsRes = await getMyPaintJobCards(accessToken);
-        if (cardsRes.ok) {
-          const cards: PaintJobCardUpdateDto[] = await cardsRes.json();
-          if (isMounted) {
-            setPaintJobs(cards.map((c) => ({ ...c, status: 'idle' as const })));
-          }
+        const cards = await loadMyPaintJobCards(accessToken);
+        if (isMounted && cards) {
+          setPaintJobs(cards.map((c) => ({ ...c, status: 'idle' as const })));
         }
       } catch (error) {
         console.error('Failed to fetch profile:', error);
@@ -52,6 +49,9 @@ const ProfilePage = () => {
     }
 
     fetchProfile();
+    return () => {
+      isMounted = false;
+    };
   }, [getAccessTokenSilently]);
 
   const saveDisplayName = async (e: SubmitEvent<HTMLFormElement>) => {
