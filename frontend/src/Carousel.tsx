@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import PaintJobCard, { type PaintJobCardProps } from './PaintJobCard';
+import PaintJobCard, { type PaintJobCardProps } from './paint-job-cards/components/PaintJobCard';
 
 // Placeholders. Need to fetch a few examples not associated with any specific user.
 const slides: PaintJobCardProps[] = [

@@ -37,7 +37,7 @@ builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<backend.Authentication.AuthenticationService>();
-
+builder.Services.AddScoped<backend.PaintJobCardModule.Services.PaintJobCardService>();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

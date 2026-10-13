@@ -480,3 +480,63 @@ body {
     font-size: 1.1rem;
   }
 }
+.add-content-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  background: transparent;
+  color: #4a5568;
+  font: inherit;
+  cursor: pointer;
+}
+
+.add-content-item:hover {
+  border-color: #718096;
+  background: #f7fafc;
+}
+
+.add-content-item-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.profile-paint-jobs {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.paint-job-card-add-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 2px dashed #cbd5e0;
+  background: #f7fafc;
+  color: #4a5568;
+  font: inherit;
+  cursor: pointer;
+}
+
+.paint-job-card-add-image-icon {
+  font-size: 2.5rem;
+}
+
+.paint-job-card-blurb-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font: inherit;
+  resize: vertical;
+}
