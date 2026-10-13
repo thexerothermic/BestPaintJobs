@@ -1,11 +1,36 @@
-import { useState, type SubmitEvent } from 'react';
+import { useEffect, useState, type SubmitEvent } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { updateDisplayName } from '../services/profile-service';
+import { getMyProfile, updateDisplayName } from '../services/profile-service';
 
 const ProfilePage = () => {
   const [displayName, setDisplayName] = useState('');
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [loadingProfile, setLoadingProfile] = useState(true);
   const { getAccessTokenSilently } = useAuth0();
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchProfile(){
+      try {
+        const accessToken = await getAccessTokenSilently();
+        if (!accessToken) return;
+        const res = await getMyProfile(accessToken);
+        if (res.ok) {
+          const profileData = await res.json();
+          if (isMounted && profileData?.displayName) {
+            setDisplayName(profileData.displayName);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch profile:', error);
+      } finally {
+        setLoadingProfile(false);
+      }
+    }
+
+    fetchProfile();
+  }, [getAccessTokenSilently]);
 
   const save = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,7 +51,8 @@ const ProfilePage = () => {
   return (
     <div className="main-card-wrapper profile-page">
       <h1 className="main-title">Profile</h1>
-      <form className="profile-form" onSubmit={save}>
+      {loadingProfile && <p>Loading profile...</p>}
+      {!loadingProfile && <form className="profile-form" onSubmit={save}>
         <label htmlFor="displayName">Display Name</label>
         <input
           id="displayName"
@@ -42,7 +68,7 @@ const ProfilePage = () => {
         </button>
         {status === 'saved' && <span className="profile-status ok">Saved</span>}
         {status === 'error' && <span className="profile-status err">Could not save. Please try again.</span>}
-      </form>
+      </form>}
     </div>
   );
 };
