@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useNavigate } from 'react-router-dom';
+import { clearCachedProfile } from './profiles/services/profile-service';
 
 const UserMenu = () => {
   const { isAuthenticated, loginWithRedirect, logout } = useAuth0();
@@ -49,7 +50,10 @@ const UserMenu = () => {
               <button role="menuitem" onClick={showProfile}>Profile</button>
               <button
                 role="menuitem"
-                onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+                onClick={() => {
+                  clearCachedProfile();
+                  logout({ logoutParams: { returnTo: window.location.origin } });
+                }}
               >
                 Sign out
               </button>

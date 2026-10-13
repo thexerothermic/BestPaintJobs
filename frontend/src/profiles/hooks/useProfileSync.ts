@@ -1,61 +1,65 @@
 import { useEffect, useState } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { getMyProfile, createMyProfile } from '../services/profile-service';
+import {
+  clearCachedProfile,
+  ensureProfile,
+  getCachedProfile,
+} from '../services/profile-service';
 import type { Profile } from '../services/profile-service';
 
 export function useProfileSync() {
-  const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [isSyncing, setIsSyncing] = useState<boolean>(true);
+  const { isAuthenticated, isLoading, user, getAccessTokenSilently } = useAuth0();
+  const [profile, setProfile] = useState<Profile | null>(getCachedProfile());
+  const [isSyncing, setIsSyncing] = useState<boolean>(getCachedProfile() === null);
+  const userId = user?.sub;
 
   useEffect(() => {
+    let isActive = true;
+
     async function syncProfile() {
-      // Don't run until Auth0 finishes loading and confirms the user is logged in
-      if (isLoading || !isAuthenticated) {
+      // Don't run until Auth0 finishes loading
+      if (isLoading) return;
+
+      if (!isAuthenticated) {
+        clearCachedProfile();
+        setProfile(null);
+        setIsSyncing(false);
+        return;
+      }
+
+      // A different user's profile must not be reused
+      const cached = getCachedProfile();
+      if (cached && userId && cached.userId !== userId) {
+        clearCachedProfile();
+      } else if (cached) {
+        setProfile(cached);
         setIsSyncing(false);
         return;
       }
 
       try {
         setIsSyncing(true);
-
-        // 1. Attempt to fetch the existing profile
         const token = await getAccessTokenSilently();
 
         if (!token) {
-            // TODO: Unauthenticate the user and redirect to login page
-            setIsSyncing(false);
-            return;
-        }
-
-        const getResponse = await getMyProfile(token);
-
-        if (getResponse.ok) {
-          const existingProfile: Profile = await getResponse.json();
-          setProfile(existingProfile);
+          // TODO: Unauthenticate the user and redirect to login page
           return;
         }
 
-        // 2. If it doesn't exist (404), trigger lazy initialization (CreateMyProfile)
-        if (getResponse.status === 404) {
-          const createResponse = await createMyProfile(token);
-
-          if (createResponse.ok) {
-            const newProfile: Profile = await createResponse.json();
-            setProfile(newProfile);
-          } else {
-            console.error("Failed to automatically initialize profile.");
-          }
-        }
+        const result = await ensureProfile(token);
+        if (isActive && result) setProfile(result);
       } catch (error) {
         console.error("Error during profile synchronization:", error);
       } finally {
-        setIsSyncing(false);
+        if (isActive) setIsSyncing(false);
       }
     }
 
     syncProfile();
-  }, [isAuthenticated, isLoading, getAccessTokenSilently]);
+    return () => {
+      isActive = false;
+    };
+  }, [isAuthenticated, isLoading, userId, getAccessTokenSilently]);
 
   return { profile, isSyncing };
 }

@@ -1,6 +1,11 @@
 import { useEffect, useState, type SubmitEvent } from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
-import { getMyProfile, updateDisplayName } from '../services/profile-service';
+import {
+  getCachedProfile,
+  ensureProfile,
+  setCachedProfile,
+  updateDisplayName,
+} from '../services/profile-service';
 
 import PaintJobCard from '../../paint-job-cards/components/PaintJobCard';
 import type { PaintJobCardUpdateDto } from '../../paint-job-cards/dtos/PaintJobCardUpdateDto';
@@ -28,12 +33,9 @@ const ProfilePage = () => {
       try {
         const accessToken = await getAccessTokenSilently();
         if (!accessToken) return;
-        const res = await getMyProfile(accessToken);
-        if (res.ok) {
-          const profileData = await res.json();
-          if (isMounted && profileData?.displayName) {
-            setDisplayName(profileData.displayName);
-          }
+        const profileData = await ensureProfile(accessToken);
+        if (isMounted && profileData?.displayName) {
+          setDisplayName(profileData.displayName);
         }
         const cardsRes = await getMyPaintJobCards(accessToken);
         if (cardsRes.ok) {
@@ -62,6 +64,10 @@ const ProfilePage = () => {
         return;
       }
       const res = await updateDisplayName({ displayName }, accessToken);
+      if (res.ok) {
+        const cached = getCachedProfile();
+        if (cached) setCachedProfile({ ...cached, displayName });
+      }
       setStatus(res.ok ? 'saved' : 'error');
     } catch {
       setStatus('error');
