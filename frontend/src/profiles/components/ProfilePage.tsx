@@ -8,6 +8,11 @@ import {
 } from '../services/profile-service';
 
 import PaintJobCard from '../../paint-job-cards/components/PaintJobCard';
+import {
+  requestUploadUrl,
+  uploadToS3,
+  validateFile,
+} from '../../files/services/file-service';
 import type { PaintJobCardUpdateDto } from '../../paint-job-cards/dtos/PaintJobCardUpdateDto';
 import {
   createPaintJobCard,
@@ -16,7 +21,8 @@ import {
 } from '../../paint-job-cards/services/paint-job-card-service';
 
 type PaintJobState = PaintJobCardUpdateDto & {
-  status: 'idle' | 'saving' | 'saved' | 'error';
+  status: 'idle' | 'saving' | 'saved' | 'error' | 'uploading';
+  errorMessage?: string;
 };
 
 const ProfilePage = () => {
@@ -91,9 +97,38 @@ const ProfilePage = () => {
     }
   };
 
-  // TODO: let the user pick an image, request an upload URL from the backend,
-  // upload the file to the file service, then set the card's imageUrl.
-  const handleAddImage = () => {};
+  const handleAddImage = async (job: PaintJobState, file: File) => {
+    const validationError = validateFile(file);
+    if (validationError) {
+      updateJob(job.id, { status: 'error', errorMessage: validationError });
+      return;
+    }
+
+    updateJob(job.id, { status: 'uploading', errorMessage: undefined });
+    try {
+      const accessToken = await getAccessTokenSilently();
+      if (!accessToken) throw new Error('Not authenticated.');
+
+      const upload = await requestUploadUrl(job.id, file, accessToken);
+      await uploadToS3(upload.uploadUrl, file, upload.requiredHeaders);
+
+      const res = await updatePaintJobCard(
+        { id: job.id, imageUrl: upload.publicUrl, blurb: job.blurb },
+        accessToken
+      );
+      if (!res.ok) throw new Error('Could not save the image.');
+
+      // Refresh just this card from the save response
+      const saved: PaintJobCardUpdateDto = await res.json();
+      updateJob(job.id, { ...saved, status: 'saved', errorMessage: undefined });
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      updateJob(job.id, {
+        status: 'error',
+        errorMessage: error instanceof Error ? error.message : 'Could not upload image.',
+      });
+    }
+  };
 
   const savePaintJob = async (job: PaintJobState) => {
     updateJob(job.id, { status: 'saving' });
@@ -148,7 +183,8 @@ const ProfilePage = () => {
                 imageUrl={job.imageUrl}
                 blurb={job.blurb}
                 saveStatus={job.status}
-                onAddImage={handleAddImage}
+                errorMessage={job.errorMessage}
+                onAddImage={(file) => handleAddImage(job, file)}
                 onBlurbChange={(blurb) => updateJob(job.id, { blurb, status: 'idle' })}
                 onSave={() => savePaintJob(job)}
               />

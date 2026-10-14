@@ -1,11 +1,15 @@
+import { useRef } from 'react';
+import { ALLOWED_UPLOAD_TYPES } from '../../files/services/file-service';
+
 export interface PaintJobCardProps {
   imageUrl: string;
   blurb: string;
   isEdit: boolean;
-  onAddImage?: () => void;
+  onAddImage?: (file: File) => void;
   onBlurbChange?: (blurb: string) => void;
   onSave?: () => void;
-  saveStatus?: 'idle' | 'saving' | 'saved' | 'error';
+  saveStatus?: 'idle' | 'saving' | 'saved' | 'error' | 'uploading';
+  errorMessage?: string;
 }
 
 const PaintJobCard = ({
@@ -16,15 +20,40 @@ const PaintJobCard = ({
   onBlurbChange,
   onSave,
   saveStatus = 'idle',
-}: PaintJobCardProps) => (
+  errorMessage,
+}: PaintJobCardProps) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploading = saveStatus === 'uploading';
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (file) onAddImage?.(file);
+  };
+
+  return (
   <article className="paint-job-card">
+    {isEdit && (
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={ALLOWED_UPLOAD_TYPES.join(',')}
+        hidden
+        onChange={handleFileChange}
+      />
+    )}
     {imageUrl ? (
       <img src={imageUrl} alt={blurb} className="paint-job-card-image" />
     ) : (
       isEdit && (
-        <button type="button" className="paint-job-card-add-image" onClick={onAddImage}>
+        <button
+          type="button"
+          className="paint-job-card-add-image"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+        >
           <span className="paint-job-card-add-image-icon" aria-hidden="true">🖼</span>
-          Add Image
+          {uploading ? 'Uploading...' : 'Add Image'}
         </button>
       )
     )}
@@ -46,13 +75,16 @@ const PaintJobCard = ({
           >
             {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save'}
           </button>
-          {saveStatus === 'error' && <span className="profile-status err">Could not save.</span>}
+          {saveStatus === 'error' && (
+            <span className="profile-status err">{errorMessage ?? 'Could not save.'}</span>
+          )}
         </>
       ) : (
         <p className="paint-job-card-blurb">{blurb}</p>
       )}
     </div>
   </article>
-);
+  );
+};
 
 export default PaintJobCard;

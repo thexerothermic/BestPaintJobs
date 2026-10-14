@@ -55,6 +55,13 @@ public class PaintJobCardService(AppDbContext context)
         return card;
     }
 
+    public async Task<PaintJobCard?> GetOwnedAsync(string userId, int cardId)
+    {
+        return await _context.PaintJobCards
+            .AsNoTracking()
+            .SingleOrDefaultAsync(c => c.Id == cardId && c.Profile!.UserId == userId);
+    }
+
     public async Task<PaintJobCard?> UpdateAsync(string userId, PaintJobCardUpdateDto dto)
     {
         var card = await _context.PaintJobCards

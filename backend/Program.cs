@@ -38,6 +38,28 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<backend.Authentication.AuthenticationService>();
 builder.Services.AddScoped<backend.PaintJobCardModule.Services.PaintJobCardService>();
+
+var s3Section = builder.Configuration.GetSection(backend.FilesModule.S3Options.SectionName);
+var s3Options = s3Section.Get<backend.FilesModule.S3Options>();
+if (s3Options == null
+    || string.IsNullOrWhiteSpace(s3Options.BucketName)
+    || string.IsNullOrWhiteSpace(s3Options.Region)
+    || string.IsNullOrWhiteSpace(s3Options.PublicBaseUrl))
+{
+    throw new InvalidOperationException("S3 BucketName, Region and PublicBaseUrl must be specified in configuration.");
+}
+builder.Services.Configure<backend.FilesModule.S3Options>(s3Section);
+builder.Services.AddSingleton<Amazon.S3.IAmazonS3>(_ =>
+{
+    var region = Amazon.RegionEndpoint.GetBySystemName(s3Options.Region);
+    if (!string.IsNullOrWhiteSpace(s3Options.AccessKeyId) && !string.IsNullOrWhiteSpace(s3Options.SecretAccessKey))
+    {
+        var credentials = new Amazon.Runtime.BasicAWSCredentials(s3Options.AccessKeyId, s3Options.SecretAccessKey);
+        return new Amazon.S3.AmazonS3Client(credentials, region);
+    }
+    return new Amazon.S3.AmazonS3Client(region);
+});
+builder.Services.AddScoped<backend.FilesModule.Services.FileStorageService>();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
