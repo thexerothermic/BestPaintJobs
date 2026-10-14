@@ -35,6 +35,15 @@ Ensure you have the following installed on your local machine before setting up 
        "Domain": "https://your-tenant.us.auth0.com/",
        "Audience": "https://api.bestpaintjobs.com"
      },
+      "S3":   {
+          "BucketName": "",
+          "Region": "",
+          "PublicBaseUrl": "",
+          "AccessKeyId": "",
+          "SecretAccessKey": "",
+          "UploadUrlExpiryMinutes": 5,
+          "MaxFileSizeBytes": 10485760
+      },
      "ConnectionStrings": {
        "DefaultConnection": "Server=localhost,1433;Database=BestPaintJobsDb;User Id=sa;TrustServerCertificate=True;Password=YourStrong@Password123"
      }
